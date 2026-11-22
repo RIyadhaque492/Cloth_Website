@@ -22,7 +22,7 @@
 <meta name="twitter:image" content="https://YOUR-USERNAME.github.io/YOUR-REPO/assets/img/og.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/store.css">
 
 </head>
@@ -75,22 +75,49 @@
         <div class="field full"><label for="note">Order note (optional)</label><textarea id="note" name="note" rows="2"></textarea></div>
       </div>
     </section>
-    <section class="box"><h2>Payment</h2>
-      <div class="pay-opts">
-        <label class="pay"><input type="radio" name="pay" value="cod" checked><span><b>Cash on Delivery</b><small>Pay when your shirt arrives</small></span></label>
-        <label class="pay"><input type="radio" name="pay" value="bkash"><span><b>bKash</b><small>Send money, then enter the transaction ID</small></span></label>
-        <label class="pay"><input type="radio" name="pay" value="nagad"><span><b>Nagad</b><small>Send money, then enter the transaction ID</small></span></label>
-        <label class="pay"><input type="radio" name="pay" value="card"><span><b>Card</b><small>Visa / Mastercard (secure payment page)</small></span></label>
+    <section class="box"><h2>Payment method</h2>
+      <div class="pay-opts" role="radiogroup" aria-label="Payment method">
+        <label class="pay"><input type="radio" name="pay" value="cod" checked><img src="assets/img/pay/cod.svg" alt="" width="68" height="34"><b>Cash on Delivery</b></label>
+        <label class="pay"><input type="radio" name="pay" value="bkash"><img src="assets/img/pay/bkash.svg" alt="" width="68" height="34"><b>bKash</b></label>
+        <label class="pay"><input type="radio" name="pay" value="nagad"><img src="assets/img/pay/nagad.svg" alt="" width="68" height="34"><b>Nagad</b></label>
+        <label class="pay"><input type="radio" name="pay" value="rocket"><img src="assets/img/pay/rocket.svg" alt="" width="68" height="34"><b>Rocket</b></label>
+        <label class="pay"><input type="radio" name="pay" value="card"><img src="assets/img/pay/card.svg" alt="" width="68" height="34"><b>Card</b></label>
       </div>
-      <div class="pay-note" data-for="bkash">Send the total to <b>01700-000000</b> (bKash Personal), then enter the transaction ID: <input name="trx_bkash" placeholder="e.g. 8N7A6D5E4F" style="margin-top:8px"></div>
-      <div class="pay-note" data-for="nagad">Send the total to <b>01700-000000</b> (Nagad Personal), then enter the transaction ID: <input name="trx_nagad" placeholder="Transaction ID" style="margin-top:8px"></div>
-      <div class="pay-note" data-for="card">You will be redirected to a secure card payment page after you place the order.</div>
+      <div class="pay-panel t-cod show" data-for="cod"><h3><img src="assets/img/pay/cod.svg" alt="" width="52" height="26">Cash on Delivery</h3><p style="margin:0">Pay in cash when your shirt arrives. Please keep the exact amount ready for the delivery person. Available all over Bangladesh.</p></div>
+      <div class="pay-panel t-bkash" data-for="bkash"><h3><img src="assets/img/pay/bkash.svg" alt="" width="52" height="26">Pay with bKash</h3>
+        <ol class="pay-steps"><li><span>Open the <b>bKash</b> app or dial the bKash menu and choose <b>Send Money</b>.</span></li><li><span>Send exactly the amount below to our bKash number.</span></li><li><span>Fill in the number you sent from and the <b>Transaction ID (TrxID)</b>, then place your order.</span></li></ol>
+        <div class="pay-amount"><div><small>Send to bKash (Personal)</small><span class="num">01700-000000</span></div><button type="button" class="copy-btn" data-copy="01700-000000">Copy number</button></div>
+        <div class="pay-amount"><div><small>Amount to send</small><span class="num" data-pay-total></span></div></div>
+        <div class="form-grid">
+          <div class="field"><label for="bkash_from">Your bKash number *</label><input id="bkash_from" name="bkash_from" inputmode="tel" placeholder="01XXXXXXXXX" autocomplete="tel"><small class="err">Enter the 11-digit number you sent from.</small></div>
+          <div class="field"><label for="bkash_trx">Transaction ID (TrxID) *</label><input id="bkash_trx" name="bkash_trx" placeholder="e.g. 8N7A6D5E4F" autocapitalize="characters" maxlength="14"><small class="err">Enter the TrxID from your payment SMS (8–14 letters/numbers).</small></div>
+        </div>
+        <p class="secure"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg> We verify every payment before shipping. Keep your SMS until the parcel arrives.</p></div>
+      <div class="pay-panel t-nagad" data-for="nagad"><h3><img src="assets/img/pay/nagad.svg" alt="" width="52" height="26">Pay with Nagad</h3>
+        <ol class="pay-steps"><li><span>Open the <b>Nagad</b> app or dial the Nagad menu and choose <b>Send Money</b>.</span></li><li><span>Send exactly the amount below to our Nagad number.</span></li><li><span>Fill in the number you sent from and the <b>Transaction ID (TrxID)</b>, then place your order.</span></li></ol>
+        <div class="pay-amount"><div><small>Send to Nagad (Personal)</small><span class="num">01700-000000</span></div><button type="button" class="copy-btn" data-copy="01700-000000">Copy number</button></div>
+        <div class="pay-amount"><div><small>Amount to send</small><span class="num" data-pay-total></span></div></div>
+        <div class="form-grid">
+          <div class="field"><label for="nagad_from">Your Nagad number *</label><input id="nagad_from" name="nagad_from" inputmode="tel" placeholder="01XXXXXXXXX" autocomplete="tel"><small class="err">Enter the 11-digit number you sent from.</small></div>
+          <div class="field"><label for="nagad_trx">Transaction ID (TrxID) *</label><input id="nagad_trx" name="nagad_trx" placeholder="e.g. 8N7A6D5E4F" autocapitalize="characters" maxlength="14"><small class="err">Enter the TrxID from your payment SMS (8–14 letters/numbers).</small></div>
+        </div>
+        <p class="secure"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg> We verify every payment before shipping. Keep your SMS until the parcel arrives.</p></div>
+      <div class="pay-panel t-rocket" data-for="rocket"><h3><img src="assets/img/pay/rocket.svg" alt="" width="52" height="26">Pay with Rocket</h3>
+        <ol class="pay-steps"><li><span>Open the <b>Rocket</b> app or dial the Rocket menu and choose <b>Send Money</b>.</span></li><li><span>Send exactly the amount below to our Rocket number.</span></li><li><span>Fill in the number you sent from and the <b>Transaction ID (TrxID)</b>, then place your order.</span></li></ol>
+        <div class="pay-amount"><div><small>Send to Rocket (Personal)</small><span class="num">01700-0000008</span></div><button type="button" class="copy-btn" data-copy="01700-0000008">Copy number</button></div>
+        <div class="pay-amount"><div><small>Amount to send</small><span class="num" data-pay-total></span></div></div>
+        <div class="form-grid">
+          <div class="field"><label for="rocket_from">Your Rocket number *</label><input id="rocket_from" name="rocket_from" inputmode="tel" placeholder="01XXXXXXXXX" autocomplete="tel"><small class="err">Enter the 11-digit number you sent from.</small></div>
+          <div class="field"><label for="rocket_trx">Transaction ID (TrxID) *</label><input id="rocket_trx" name="rocket_trx" placeholder="e.g. 8N7A6D5E4F" autocapitalize="characters" maxlength="14"><small class="err">Enter the TrxID from your payment SMS (8–14 letters/numbers).</small></div>
+        </div>
+        <p class="secure"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg> We verify every payment before shipping. Keep your SMS until the parcel arrives.</p></div>
+      <div class="pay-panel t-card" data-for="card"><h3><img src="assets/img/pay/card.svg" alt="" width="52" height="26">Credit / Debit card</h3><div class="accept" style="margin-bottom:12px"><img src="assets/img/pay/visa.svg" alt="Visa" width="52" height="22"><img src="assets/img/pay/mastercard.svg" alt="Mastercard" width="52" height="22"></div><p style="margin:0">After you place your order you will be taken to a secure payment page to enter your card details. We never see or store your card number.</p><p class="secure"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg> Encrypted, PCI-compliant gateway.</p></div>
     </section>
   </div>
   <aside class="box summary"><h2>Your order</h2><div id="sumItems"></div>
     <div class="sum-row"><span>Subtotal</span><span id="sumSub"></span></div><div class="sum-row"><span>Delivery</span><span id="sumShip"></span></div>
     <div class="sum-row total"><span>Total</span><span id="sumTotal"></span></div>
-    <button class="btn btn-accent btn-block" type="submit" style="margin-top:14px">Place order</button>
+    <button class="btn btn-accent btn-block" type="submit" style="margin-top:14px">Place order</button><div class="accept" style="margin-top:14px;justify-content:center"><img src="assets/img/pay/bkash.svg" alt="bKash" width="48" height="20"><img src="assets/img/pay/nagad.svg" alt="Nagad" width="48" height="20"><img src="assets/img/pay/rocket.svg" alt="Rocket" width="48" height="20"><img src="assets/img/pay/visa.svg" alt="Visa" width="48" height="20"></div>
     <p class="muted center" style="font-size:13px;margin:12px 0 0">By placing your order you agree to our <a class="link" href="terms-conditions.html">terms</a>.</p>
   </aside>
 </form></div></main>
@@ -116,7 +143,7 @@
   </div>
   <div class="copy"><div class="wrap">
     <span>© 2026 Velora. All rights reserved. · <a href="privacy-policy.html">Privacy</a> · <a href="terms-conditions.html">Terms</a></span>
-    <span class="pay-icons"><span>COD</span><span>bKash</span><span>Nagad</span><span>VISA</span></span>
+    <span class="pay-icons" aria-label="Accepted payments"><img src="assets/img/pay/cod.svg" alt="Cash on delivery" width="54" height="22" loading="lazy"><img src="assets/img/pay/bkash.svg" alt="bKash" width="54" height="22" loading="lazy"><img src="assets/img/pay/nagad.svg" alt="Nagad" width="54" height="22" loading="lazy"><img src="assets/img/pay/rocket.svg" alt="Rocket" width="54" height="22" loading="lazy"><img src="assets/img/pay/visa.svg" alt="Visa" width="54" height="22" loading="lazy"><img src="assets/img/pay/mastercard.svg" alt="Mastercard" width="54" height="22" loading="lazy"></span>
   </div></div>
 </footer>
 <script src="assets/js/products-data.js"></script>

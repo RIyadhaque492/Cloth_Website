@@ -24,7 +24,7 @@
   var saveCart = function (c) { store.set('velora_cart', c); badge(); };
   function badge() {
     var n = getCart().reduce(function (a, i) { return a + i.qty; }, 0);
-    $$('[data-cart-count]').forEach(function (b) { b.textContent = n; b.setAttribute('data-n', n); });
+    $$('[data-cart-count]').forEach(function (b) { var ch = b.textContent !== String(n); b.textContent = n; b.setAttribute('data-n', n); if (ch) { b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump'); } });
   }
   function unit(p) { return p.sale || p.price; }
   function cartItems() {
@@ -220,20 +220,37 @@
     };
     dsel.addEventListener('change', drawSum); drawSum();
     if (items.length) vt('InitiateCheckout', trackPayload(items));
-    $$('input[name=pay]', ckForm).forEach(function (r) {
-      r.addEventListener('change', function () {
-        $$('.pay-note', ckForm).forEach(function (n) { n.classList.toggle('show', n.dataset.for === r.value); });
+    var payLabel = { cod: 'Cash on Delivery', bkash: 'bKash', nagad: 'Nagad', rocket: 'Rocket', card: 'Card' };
+    var wallets = ['bkash', 'nagad', 'rocket'];
+    var showPay = function (v) { $$('.pay-panel', ckForm).forEach(function (n) { n.classList.toggle('show', n.dataset.for === v); }); };
+    $$('input[name=pay]', ckForm).forEach(function (r) { r.addEventListener('change', function () { showPay(r.value); }); });
+    var syncTotal = function () { var t = fmt(sub + shipping(dsel.value, sub)); $$('[data-pay-total]', ckForm).forEach(function (e) { e.textContent = t; }); };
+    dsel.addEventListener('change', syncTotal); syncTotal();
+    $$('[data-copy]', ckForm).forEach(function (b) {
+      b.addEventListener('click', function () {
+        var n = b.dataset.copy.replace(/\D/g, '');
+        (navigator.clipboard ? navigator.clipboard.writeText(n) : Promise.reject()).then(function () { toast('Number copied ✓'); }, function () { toast('Number: ' + b.dataset.copy); });
       });
     });
+    var bad = function (input, on) { var f = input.closest('.field'); if (f) f.classList.toggle('bad', on); return on; };
+    var phoneOk = function (v) { return /^(\+?88)?01[3-9]\d{8}$/.test(v.replace(/[\s-]/g, '')); };
+    $$('.field input', ckForm).forEach(function (i) { i.addEventListener('input', function () { bad(i, false); }); });
     ckForm.addEventListener('submit', function (e) {
       e.preventDefault();
       if (!items.length) { toast('Your bag is empty.'); return; }
       var ph = $('[name=phone]', ckForm).value.replace(/[\s-]/g, '');
-      if (!/^(\+?88)?01[3-9]\d{8}$/.test(ph)) { $('#phoneErr').hidden = false; $('[name=phone]', ckForm).focus(); return; }
+      if (!phoneOk(ph)) { $('#phoneErr').hidden = false; $('[name=phone]', ckForm).focus(); return; }
       $('#phoneErr').hidden = true;
+      var method = $('input[name=pay]:checked', ckForm).value, payInfo = null;
+      if (wallets.indexOf(method) > -1) {
+        var from = $('[name=' + method + '_from]', ckForm), trx = $('[name=' + method + '_trx]', ckForm);
+        var b1 = bad(from, !phoneOk(from.value)), b2 = bad(trx, !/^[A-Za-z0-9]{8,14}$/.test(trx.value.trim()));
+        if (b1 || b2) { (b1 ? from : trx).focus(); toast('Please complete your ' + payLabel[method] + ' payment details'); return; }
+        payInfo = { from: from.value.replace(/[\s-]/g, ''), trx: trx.value.trim().toUpperCase() };
+      }
       var ship = shipping(dsel.value, sub), no = 'VL' + String(Date.now()).slice(-6);
       var order = { no: no, name: $('[name=name]', ckForm).value, phone: ph, district: dsel.value, address: $('[name=address]', ckForm).value,
-        pay: $('input[name=pay]:checked', ckForm).value, sub: sub, ship: ship, total: sub + ship, date: new Date().toISOString(),
+        pay: method, payInfo: payInfo, sub: sub, ship: ship, total: sub + ship, date: new Date().toISOString(),
         items: items.map(function (i) { return { id: i.p.id, name: i.p.name, size: i.size, color: i.color, qty: i.qty, price: unit(i.p) }; }) };
       var orders = store.get('velora_orders', []); orders.unshift(order); store.set('velora_orders', orders);
       store.set('velora_cart', []);
@@ -248,7 +265,7 @@
     if (!o) { okRoot.innerHTML = '<h1 style="font-family:var(--serif)">Order not found</h1><p class="muted">We could not find that order in this browser.</p><a class="btn btn-dark" href="shop.html">Shop shirts</a>'; }
     else {
       $('#okNo').textContent = o.no; $('#okTotal').textContent = fmt(o.total);
-      $('#okPay').textContent = { cod: 'Cash on Delivery', bkash: 'bKash', nagad: 'Nagad', card: 'Card' }[o.pay] || o.pay;
+      $('#okPay').textContent = ({ cod: 'Cash on Delivery', bkash: 'bKash', nagad: 'Nagad', rocket: 'Rocket', card: 'Card' }[o.pay] || o.pay) + (o.payInfo ? ' · TrxID ' + o.payInfo.trx + ' (verifying)' : '');
       $('#okAddr').textContent = o.name + ', ' + o.address + ', ' + o.district + ' · ' + o.phone;
       $('#okTrack').href = 'track-order.html?o=' + o.no;
       if (!o.tracked) {
@@ -276,5 +293,12 @@
     };
     tf.addEventListener('submit', function (e) { e.preventDefault(); show($('[name=order]', tf).value.trim()); });
     var pre = new URLSearchParams(location.search).get('o'); if (pre) { $('[name=order]', tf).value = pre; show(pre); }
+  }
+
+  /* ---------- reveal on scroll ---------- */
+  if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    var targets = $$('.sec-head, .grid > *, .col-grid > *, .feat, .quote, .promo > *, .newsletter > *, .box, .prose > *, .pdp-perks li, .faq details');
+    var io = new IntersectionObserver(function (en) { en.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
+    targets.forEach(function (t, i) { if (t.getBoundingClientRect().top < window.innerHeight) return; t.classList.add('rv'); t.style.setProperty('--d', ((i % 4) * 0.07) + 's'); io.observe(t); });
   }
 })();
